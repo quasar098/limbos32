@@ -15,6 +15,7 @@ class LimboKeysClient:
         self.position = [0, -300]
         self.id_surface = pygame.Surface((0, 0))
         self.wants_to_quit = False
+        self.alive = True
         start_new_thread(self.listening_thread, ())
 
     def listening_thread(self):
@@ -27,6 +28,7 @@ class LimboKeysClient:
                 msg: dict[str, Any] = loads(s.recv(1024).decode('ascii'))
                 self.id = msg["id"]
                 self.position = msg["position"]
+                self.alive = msg["alive"]
                 if not assigned_client_id:
                     if self.id == 0:
                         pygame.mixer.music.load("LIMBO.mp3")
@@ -38,7 +40,7 @@ class LimboKeysClient:
                 s.sendall(dumps({"quit": self.wants_to_quit}).encode('ascii'))
 
 
-WIDTH, HEIGHT, FRAMERATE = 260, 260, 75
+WIDTH, HEIGHT, FRAMERATE = 150, 150, 75
 
 pygame.init()
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
@@ -54,7 +56,7 @@ client = LimboKeysClient()
 pgwindow = Window.from_display_module()
 
 running = True
-while running:
+while running and client.alive:
     screen.fill(BG_COLOR)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

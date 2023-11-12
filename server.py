@@ -5,20 +5,21 @@ from time import time
 from random import choice, seed
 
 SC_WIDTH, SC_HEIGHT = 1920, 1080
-W_WIDTH, W_HEIGHT = 260, 260
+W_WIDTH, W_HEIGHT = 150, 150
+SPACING = 60
 
 seed(0xF0C_5)  # FOCUS
 
 step_map = {
-    # 0: {0: 4, 1: 5, 2: 6, 3: 7, 4: 0, 5: 1, 6: 2, 7: 3},
-    # 1: {0: 1, 1: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 7, 7: 0},
-    # 2: {0: 7, 1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6},
-    # 3: {0: 5, 1: 4, 4: 1, 5: 0, 2: 7, 3: 6, 6: 3, 7: 2},
-    # 4: {0: 3, 1: 2, 2: 1, 3: 0, 4: 7, 5: 6, 6: 5, 7: 4},
-    # 5: {0: 7, 1: 6, 2: 5, 3: 4, 4: 3, 5: 2, 6: 1, 7: 0},
-    # 6: {0: 1, 1: 5, 5: 4, 4: 0, 2: 3, 3: 7, 7: 6, 6: 2},
-    # 7: {1: 0, 5: 1, 4: 5, 0: 4, 3: 2, 7: 3, 6: 7, 2: 6}
-    8: {1: 0, 5: 1, 4: 5, 0: 4, 2: 3, 3: 7, 7: 6, 6: 2}
+    0: {0: 4, 1: 5, 2: 6, 3: 7, 4: 0, 5: 1, 6: 2, 7: 3},  # mirror across x axis
+    1: {0: 1, 1: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 7, 7: 0},  # move right column to left and cross
+    2: {0: 7, 1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6},  # move left column to right and cross
+    3: {0: 5, 1: 4, 4: 1, 5: 0, 2: 7, 3: 6, 6: 3, 7: 2},  # two x patterns
+    4: {0: 3, 1: 2, 2: 1, 3: 0, 4: 7, 5: 6, 6: 5, 7: 4},  # mirror across y axis
+    5: {0: 7, 1: 6, 2: 5, 3: 4, 4: 3, 5: 2, 6: 1, 7: 0},  # right+right stuff
+    6: {0: 1, 1: 5, 5: 4, 4: 0, 2: 3, 3: 7, 7: 6, 6: 2},  # left+left stuff
+    7: {1: 0, 5: 1, 4: 5, 0: 4, 3: 2, 7: 3, 6: 7, 2: 6},  # right+left stuff
+    8: {1: 0, 5: 1, 4: 5, 0: 4, 2: 3, 3: 7, 7: 6, 6: 2},  # left+right stuff
 }
 
 
@@ -28,8 +29,8 @@ def lerp(p1: list, p2: list, amt: float):
 
 def get_static_pos(client_id: int):
     return [
-        int(SC_WIDTH / 2 - W_WIDTH * 2 - 40 + (client_id % 4) * (W_WIDTH + 20)),
-        int(SC_HEIGHT / 2 - W_HEIGHT - 20 + (W_HEIGHT + 40) * (client_id // 4))
+        int(SC_WIDTH / 2 - W_WIDTH * 2 - SPACING*2 + (client_id % 4) * (W_WIDTH + SPACING)),
+        int(SC_HEIGHT / 2 - W_HEIGHT - SPACING + (W_HEIGHT + SPACING*2) * (client_id // 4))
     ]
 
 
@@ -65,6 +66,7 @@ class TCPHandler(socketserver.BaseRequestHandler):
     clients = []
     start_time = 0
     steps = []
+    alive = True
 
     def handle(self) -> None:
         if len(TCPHandler.clients) >= 8:
@@ -83,15 +85,20 @@ class TCPHandler(socketserver.BaseRequestHandler):
             while True:
                 data: dict[str, Any] = loads(self.request.recv(1024).decode('ascii'))
                 if data["quit"]:
-                    quit()
+                    TCPHandler.alive = False
                 current_time = time() - TCPHandler.start_time
-                reply = dumps({"id": client_id, "position": get_pos(client_id, current_time, TCPHandler.steps)})
+                reply = dumps({
+                    "id": client_id,
+                    "position": get_pos(client_id, current_time, TCPHandler.steps),
+                    "alive": TCPHandler.alive
+                })
                 reply = reply.encode('ascii')
                 self.request.sendall(reply)
         except WindowsError:
             pass
         finally:
             if len(TCPHandler.clients) == 1:
+                TCPHandler.alive = True
                 print("======================")
             TCPHandler.clients.remove(client_id)
 
