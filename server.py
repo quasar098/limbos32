@@ -3,6 +3,7 @@ from json import loads, dumps
 from typing import Any
 from time import time
 from random import choice, seed
+from random import randint
 
 SC_WIDTH, SC_HEIGHT = 1920, 1080
 W_WIDTH, W_HEIGHT = 150, 150
@@ -35,7 +36,7 @@ def get_static_pos(client_id: int):
 
 
 def get_pos(client_id: int, current_time: float, steps: list):
-    music_bop_time = 3.4
+    music_bop_time = 5.4
     step_speed = 60/200
 
     if current_time < music_bop_time:
@@ -66,7 +67,9 @@ class TCPHandler(socketserver.BaseRequestHandler):
     clients = []
     start_time = 0
     steps = []
+    correct_key = -1
     alive = True
+    success = False
 
     def handle(self) -> None:
         if len(TCPHandler.clients) >= 8:
@@ -80,19 +83,26 @@ class TCPHandler(socketserver.BaseRequestHandler):
         if client_id == 0:
             TCPHandler.steps = [choice(list(step_map.keys())) for _ in range(30)]
             TCPHandler.start_time = time()
+            TCPHandler.correct_key = randint(0, 7)
         print(f"{client_id} joined")
         try:
             while True:
                 data: dict[str, Any] = loads(self.request.recv(1024).decode('ascii'))
                 if data["quit"]:
                     TCPHandler.alive = False
+                if data["clicked"]:
+                    if TCPHandler.correct_key == client_id:
+                        TCPHandler.success = True
+                    TCPHandler.alive = False
                 current_time = time() - TCPHandler.start_time
-                reply = dumps({
+                reply = {
                     "id": client_id,
                     "position": get_pos(client_id, current_time, TCPHandler.steps),
-                    "alive": TCPHandler.alive
-                })
-                reply = reply.encode('ascii')
+                    "alive": TCPHandler.alive,
+                    "highlight": 1 if client_id == TCPHandler.correct_key and 2.4 < current_time < 3 else -1,
+                    "success": TCPHandler.success
+                }
+                reply = dumps(reply).encode('ascii')
                 self.request.sendall(reply)
         except WindowsError:
             pass
