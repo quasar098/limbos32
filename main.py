@@ -1,6 +1,8 @@
 import socket
-
 import pygame
+import win32gui
+import win32con
+import win32api
 # noinspection PyUnresolvedReferences,PyProtectedMember
 from pygame._sdl2 import Window
 from typing import Any
@@ -50,14 +52,20 @@ font = pygame.font.SysFont("Arial", 20)
 key = pygame.image.load("key.png").convert_alpha()
 pygame.display.set_caption("LIMBO")
 
-BG_COLOR = pygame.Color(190, 190, 190)
-
 client = LimboKeysClient()
 pgwindow = Window.from_display_module()
 
+hwnd = pygame.display.get_wm_info()["window"]
+win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE,
+                       win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE) | win32con.WS_EX_LAYERED)
+win32gui.SetLayeredWindowAttributes(hwnd, win32api.RGB(*(1, 1, 1)), 0, win32con.LWA_COLORKEY)
+
+screen.fill((1, 1, 1))
+screen.blit(key, key.get_rect(center=(WIDTH/2, HEIGHT/2)))
+screen.blit(client.id_surface, (10, 10))
+
 running = True
 while running and client.alive:
-    screen.fill(BG_COLOR)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             client.wants_to_quit = True
@@ -65,9 +73,6 @@ while running and client.alive:
             running = False
 
     pgwindow.position = [int(pos) for pos in client.position]
-
-    screen.blit(key, key.get_rect(center=(WIDTH/2, HEIGHT/2)))
-    screen.blit(client.id_surface, (10, 10))
 
     pygame.display.flip()
     clock.tick(FRAMERATE)
