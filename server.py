@@ -2,12 +2,14 @@ import socketserver
 from json import loads, dumps
 from typing import Any
 from time import time
+from math import cos, sin, pi
 from random import choice, seed
 from random import randint
 
 SC_WIDTH, SC_HEIGHT = 1920, 1080
 W_WIDTH, W_HEIGHT = 150, 150
 SPACING = 60
+DO_TIMES = 30
 
 seed(0xF0C_5)  # FOCUS
 
@@ -35,6 +37,13 @@ def get_static_pos(client_id: int):
     ]
 
 
+def get_circle_pos(client_id: int, time_offset: float):
+    return [
+        int(SC_WIDTH / 2 - W_WIDTH / 2)+cos(pi*client_id/4+time_offset/2)*SC_WIDTH*2/8,
+        int(SC_HEIGHT / 2 - W_HEIGHT / 2)+sin(pi*client_id/4+time_offset/2)*SC_HEIGHT*2/8
+    ]
+
+
 def get_pos(client_id: int, current_time: float, steps: list):
     music_bop_time = 5.4
     step_speed = 60/200
@@ -54,7 +63,8 @@ def get_pos(client_id: int, current_time: float, steps: list):
     for step in completed_steps:
         spoofed_id = step_map[step][spoofed_id]
     if current_step is None:
-        return get_static_pos(spoofed_id)
+        lerped = max(0.0, min(1.0, (current_time - music_bop_time - step_speed * DO_TIMES) / 2))
+        return lerp(get_static_pos(spoofed_id), get_circle_pos(client_id, current_time), lerped)
     lerped = lerp(
         get_static_pos(spoofed_id),
         get_static_pos(step_map[current_step][spoofed_id]),
@@ -74,6 +84,8 @@ class TCPHandler(socketserver.BaseRequestHandler):
     def handle(self) -> None:
         if len(TCPHandler.clients) >= 8:
             return
+        if not TCPHandler.alive:
+            return
         client_id = 0
         while True:
             if client_id not in TCPHandler.clients:
@@ -81,7 +93,7 @@ class TCPHandler(socketserver.BaseRequestHandler):
             client_id += 1
         TCPHandler.clients.append(client_id)
         if client_id == 0:
-            TCPHandler.steps = [choice(list(step_map.keys())) for _ in range(30)]
+            TCPHandler.steps = [choice(list(step_map.keys())) for _ in range(DO_TIMES)]
             TCPHandler.start_time = time()
             TCPHandler.correct_key = randint(0, 7)
         print(f"{client_id} joined")
