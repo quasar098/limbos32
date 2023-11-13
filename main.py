@@ -26,7 +26,7 @@ class LimboKeysClient:
         try:
             assigned_client_id = False
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.connect(("localhost", 6666))
+                s.connect(("localhost", 28954))
                 s.sendall(dumps({"quit": False, "clicked": False}).encode('ascii'))
                 while True:
                     sleep(0.02)
