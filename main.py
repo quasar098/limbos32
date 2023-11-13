@@ -6,7 +6,7 @@ from typing import Any
 from _thread import start_new_thread
 import winsound
 from time import sleep
-from json import loads, dumps
+from json import loads, dumps, load
 from pymsgbox import alert
 
 
@@ -51,8 +51,24 @@ class LimboKeysClient:
 
 WIDTH, HEIGHT, FRAMERATE = 150, 150, 75
 
+# configurables
+borderless = False
+transparent = False
+# =============
+
+try:
+    with open("config.json") as f:
+        data: dict[str, Any] = load(f)
+        borderless = data.get("borderless")
+except FileNotFoundError:
+    pass
+
 pygame.init()
-screen = pygame.display.set_mode([WIDTH, HEIGHT])
+flags = 0
+if borderless:
+    flags |= pygame.NOFRAME
+
+screen = pygame.display.set_mode([WIDTH, HEIGHT], flags=flags)
 clock = pygame.time.Clock()
 font = pygame.font.SysFont("Arial", 20)
 
@@ -62,6 +78,17 @@ pygame.display.set_caption("LIMBO")
 
 client = LimboKeysClient()
 pgwindow = Window.from_display_module()
+
+if transparent:
+    import win32api
+    import win32con
+    import win32gui
+    # Create layered window
+    hwnd = pygame.display.get_wm_info()["window"]
+    win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE,
+                           win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE) | win32con.WS_EX_LAYERED)
+    # Set window transparency color
+    win32gui.SetLayeredWindowAttributes(hwnd, win32api.RGB(*(1, 1, 1)), 0, win32con.LWA_COLORKEY)
 
 running = True
 while running and client.alive:
@@ -81,7 +108,7 @@ while running and client.alive:
         screen.blit(key, key.get_rect(center=(WIDTH/2, HEIGHT/2)))
     else:
         screen.blit(key, key.get_rect(center=(WIDTH/2, HEIGHT/2)))
-    screen.blit(client.id_surface, (10, 10))
+    # screen.blit(client.id_surface, (10, 10))
 
     pgwindow.position = [int(pos) for pos in client.position]
 
@@ -92,5 +119,5 @@ if client.clicked:
         alert("You win")
     else:
         start_new_thread(winsound.PlaySound, ("SystemExclamation", winsound.SND_ALIAS))
-        alert("Deleting C:\\Windows\\System32")
+        alert("Wrong guess")
 pygame.quit()
