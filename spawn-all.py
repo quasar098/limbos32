@@ -18,8 +18,8 @@ def startserver():
 
 for _ in range(8):
     start_new_thread(threadeded, ())
-    start_new_thread(startserver, ())
     sleep(0.23)
+start_new_thread(startserver, ())
 
 while counted:
     sleep(0.1)
