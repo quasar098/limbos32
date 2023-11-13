@@ -60,6 +60,7 @@ try:
     with open("config.json") as f:
         data: dict[str, Any] = load(f)
         borderless = data.get("borderless")
+        transparent = data.get("transparent")
 except FileNotFoundError:
     pass
 
