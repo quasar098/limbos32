@@ -108,6 +108,7 @@ class TCPHandler(socketserver.BaseRequestHandler):
         print(f"{client_id} joined")
         try:
             while True:
+                TCPHandler.success = False
                 data: dict[str, Any] = loads(self.request.recv(1024).decode('ascii'))
                 if data["quit"]:
                     TCPHandler.alive = False
