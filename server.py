@@ -140,7 +140,7 @@ class TCPHandler(socketserver.BaseRequestHandler):
 
 
 def main():
-    host, port = "localhost", 6666
+    host, port = "localhost", 28954
 
     with socketserver.ThreadingTCPServer((host, port), TCPHandler) as server:
         server.serve_forever()
