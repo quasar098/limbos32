@@ -37,13 +37,14 @@ class LimboKeysClient:
                     self.alive = msg["alive"]
                     self.success = msg["success"]
                     self.clickable = msg["clickable"]
-                    self.highlight_amount = min(1, max(self.highlight_amount+msg["highlight"]*4/FRAMERATE, 0))
+                    self.highlight_amount = min(1, max(self.highlight_amount + msg["highlight"] * 4 / FRAMERATE, 0))
                     if not assigned_client_id:
                         if self.id == 0:
                             pygame.mixer.music.load("LIMBO.mp3")
                             pygame.mixer.music.set_volume(0.3)
-                            pygame.mixer.music.play()
-                            pygame.mixer.music.set_pos(176)
+                            if music:
+                                pygame.mixer.music.play()
+                                pygame.mixer.music.set_pos(176)
                         self.id_surface = font.render(str(self.id), True, (0, 0, 0))
                         assigned_client_id = True
                     s.sendall(dumps({"quit": self.wants_to_quit, "clicked": self.clicked}).encode('ascii'))
@@ -53,16 +54,20 @@ class LimboKeysClient:
 
 WIDTH, HEIGHT, FRAMERATE = 150, 150, 75
 
-# configurables
+# configurables (do config.json)
 borderless = False
 transparent = False
-# =============
+music = True
+sfx = True
+# ==============================
 
 try:
     with open("config.json") as f:
         data: dict[str, Any] = load(f)
-        borderless = data.get("borderless")
-        transparent = data.get("transparent")
+        borderless = data.get("borderless", False)
+        transparent = data.get("transparent", False)
+        music = data.get("music", True)
+        sfx = data.get("sfx", True)
 except FileNotFoundError:
     pass
 
@@ -86,6 +91,7 @@ if transparent:
     import win32api
     import win32con
     import win32gui
+
     # Create layered window
     hwnd = pygame.display.get_wm_info()["window"]
     win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE,
@@ -107,11 +113,11 @@ while running and client.alive:
 
     screen.fill((1, 1, 1))
     if client.highlight_amount != 0:
-        screen.blit(green_key, green_key.get_rect(center=(WIDTH/2, HEIGHT/2)))
-        key.set_alpha(255-int(client.highlight_amount*255))
-        screen.blit(key, key.get_rect(center=(WIDTH/2, HEIGHT/2)))
+        screen.blit(green_key, green_key.get_rect(center=(WIDTH / 2, HEIGHT / 2)))
+        key.set_alpha(255 - int(client.highlight_amount * 255))
+        screen.blit(key, key.get_rect(center=(WIDTH / 2, HEIGHT / 2)))
     else:
-        screen.blit(key, key.get_rect(center=(WIDTH/2, HEIGHT/2)))
+        screen.blit(key, key.get_rect(center=(WIDTH / 2, HEIGHT / 2)))
     # screen.blit(client.id_surface, (10, 10))
 
     pgwindow.position = [int(pos) for pos in client.position]
@@ -122,6 +128,7 @@ if client.clicked:
     if client.success:
         alert("You win")
     else:
-        start_new_thread(winsound.PlaySound, ("SystemExclamation", winsound.SND_ALIAS))
+        if sfx:
+            start_new_thread(winsound.PlaySound, ("SystemExclamation", winsound.SND_ALIAS))
         alert("Wrong guess")
 pygame.quit()
