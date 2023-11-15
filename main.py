@@ -19,6 +19,7 @@ class LimboKeysClient:
         self.alive = True
         self.highlight_amount: float = 0
         self.clicked = False
+        self.clickable = False
         self.success = False
         start_new_thread(self.listening_thread, ())
 
@@ -35,6 +36,7 @@ class LimboKeysClient:
                     self.position = msg["position"]
                     self.alive = msg["alive"]
                     self.success = msg["success"]
+                    self.clickable = msg["clickable"]
                     self.highlight_amount = min(1, max(self.highlight_amount+msg["highlight"]*4/FRAMERATE, 0))
                     if not assigned_client_id:
                         if self.id == 0:
@@ -100,7 +102,8 @@ while running and client.alive:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
-                client.clicked = True
+                if client.clickable:
+                    client.clicked = True
 
     screen.fill((1, 1, 1))
     if client.highlight_amount != 0:

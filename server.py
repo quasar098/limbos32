@@ -11,6 +11,9 @@ W_WIDTH, W_HEIGHT = 150, 150
 SPACING = 100
 DO_TIMES = 30
 
+GAME_START_TIME = 5.4
+STEP_SPEED = 60 / 200
+
 seed(0xF0C_5)  # FOCUS
 
 step_map = {
@@ -27,6 +30,15 @@ step_map = {
     10: {0: 5, 1: 6, 2: 7, 3: 3, 4: 4, 5: 0, 6: 1, 7: 2},  # swap top left 3 and bottom right 3
     11: {0: 0, 1: 4, 2: 5, 3: 6, 4: 1, 5: 2, 6: 3, 7: 7},  # swap top right 3 and bottom left 3
 }
+
+forbidden_pairs = [
+    (10, 9),
+    (11, 9),
+    (9, 10),
+    (9, 11),
+    (1, 2),
+    (2, 1)
+]
 
 
 def lerp(p1: list, p2: list, amt: float):
@@ -52,17 +64,15 @@ def get_circle_pos(client_id: int, time_offset: float):
 
 
 def get_pos(client_id: int, current_time: float, steps: list):
-    music_bop_time = 5.4
-    step_speed = 60/200
 
-    if current_time < music_bop_time:
+    if current_time < GAME_START_TIME:
         return get_static_pos(client_id)
 
-    running_time = current_time - music_bop_time
+    running_time = current_time - GAME_START_TIME
 
-    completed_steps = steps[:int(running_time / step_speed)]
+    completed_steps = steps[:int(running_time / STEP_SPEED)]
     try:
-        current_step = steps[int(running_time / step_speed)]
+        current_step = steps[int(running_time / STEP_SPEED)]
     except IndexError:
         current_step = None
 
@@ -70,13 +80,13 @@ def get_pos(client_id: int, current_time: float, steps: list):
     for step in completed_steps:
         spoofed_id = step_map[step][spoofed_id]
     if current_step is None:
-        lerped = max(0.0, min(1.0, (current_time - music_bop_time - step_speed * DO_TIMES) / 2))
+        lerped = max(0.0, min(1.0, (current_time - GAME_START_TIME - STEP_SPEED * DO_TIMES) / 2))
         lerped = 1 + pow(lerped-1, 3)
         return lerp(get_static_pos(spoofed_id), get_circle_pos(client_id, current_time), lerped)
     lerped = serp(
         get_static_pos(spoofed_id),
         get_static_pos(step_map[current_step][spoofed_id]),
-        (running_time / step_speed) % 1)
+        (running_time / STEP_SPEED) % 1)
     # print(spoofed_id, step_map[current_step][spoofed_id])
     return lerped
 
@@ -102,7 +112,18 @@ class TCPHandler(socketserver.BaseRequestHandler):
             client_id += 1
         TCPHandler.clients.append(client_id)
         if client_id == 0:
-            TCPHandler.steps = [choice(list(step_map.keys())) for _ in range(DO_TIMES)]
+            TCPHandler.steps = []
+            prev_move = -1
+            for _ in range(DO_TIMES):
+                move = -1
+                while prev_move == move or move == -1:
+                    move = choice(list(step_map.keys()))
+                    if len(TCPHandler.steps) and (TCPHandler.steps[-1], move) in forbidden_pairs:
+                        move = -1
+                    if len(step_map) == 1:
+                        break
+                TCPHandler.steps.append(move)
+                prev_move = move
             TCPHandler.start_time = time()
             TCPHandler.correct_key = randint(0, 7)
         print(f"{client_id} joined")
@@ -121,8 +142,9 @@ class TCPHandler(socketserver.BaseRequestHandler):
                     "id": client_id,
                     "position": get_pos(client_id, current_time, TCPHandler.steps),
                     "alive": TCPHandler.alive,
-                    "highlight": 1 if client_id == TCPHandler.correct_key and 2.4 < current_time < 3 else -1,
-                    "success": TCPHandler.success
+                    "highlight": 1 if client_id == TCPHandler.correct_key and 2 < current_time < 3 else -1,
+                    "success": TCPHandler.success,
+                    "clickable": current_time > GAME_START_TIME+STEP_SPEED*DO_TIMES+0.5
                 }
                 reply = dumps(reply).encode('ascii')
                 self.request.sendall(reply)
