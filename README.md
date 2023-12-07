@@ -10,12 +10,12 @@
 
 1) install python from python.org, preferably python 3.9 or above. if you are installing it then make sure to check the box to install pip when it asks you during the install process. also check the box to set up the `PATH` environment variable or whatever and restart your pc if necessary
 2) make sure python works from the terminal by going into command prompt and typing `python` (if it doesn't work, try `python3`). if it doesn't work no matter what you try, try adding python to environment path (google how to do that)
-3) close that terminal and open up a new terminal and install the dependencies by typing in `python3 -m pip install -r requirements.txt`. if it doesn't work, you may have to try using `python` instead of `python3`
-4) once you have that working, download the source code by clicking on the green `<> code V` button and clicking "download ZIP"
-5) unzip the file from file explorer or whatever
-6) navigate to the unzipped folder with the source code
-7) i think double clicking on the "server.py" should run it. the server.py is always required in the background because it manages all the windows for the limbo key game
-8) double click on "spawn-all.py". if it doesn't work, try changing `python3` to `python` in the source code in spawn-all.py
+3) once you have that working, close the terminal and download the source code in github.com by clicking on the green `<> code` button and clicking "download ZIP"
+4) unzip the file from file explorer or whatever
+5) navigate to the unzipped folder with the source code
+6) open up a new command prompt (type `cmd` in taskbar) and navigate to the directory with the source by using the `cd` and `dir` commands. most likely it will be in `C:\Users\<username>\Downloads` or something. install the dependencies by typing in `python3 -m pip install -r requirements.txt` in the command prompt. if it doesn't work, you may have to try using `python` instead of `python3`. keep that terminal open for now
+7) i think double clicking on the "server.py" should run it. the server.py is always required in the background because it manages the positions and synchronization for all the windows of the limbo key game
+8) in the terminal from before, type something like `python3 "spawn-all.py"`. if it doesn't work, try changing `python3` to `python`. additionally, it might not open any windows, in which case you should change `python3` to `python` in the source code in spawn-all.py
 
 ### need tech support?
 
