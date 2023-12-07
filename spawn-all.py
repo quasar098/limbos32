@@ -4,7 +4,7 @@ from time import sleep
 
 
 counted = 0
-
+system("python3 server.py")
 
 def threadeded():
     global counted
