@@ -1,5 +1,5 @@
 import socketserver
-from json import loads, dumps
+from json import loads, dumps, load
 from typing import Any
 from time import time, sleep
 from math import cos, sin, pi
@@ -64,6 +64,16 @@ def get_circle_pos(client_id: int, time_offset: float):
     ]
 
 
+# configurables for the server (do config.json)
+cheat = False
+# ==============================
+try:
+    with open("config.json") as f:
+        data: dict[str, Any] = load(f)
+        cheat = data.get("cheat", False)
+except FileNotFoundError:
+    print("config.json not found, using defaults")
+
 def get_pos(client_id: int, current_time: float, steps: list):
 
     if current_time < GAME_START_TIME:
@@ -126,7 +136,10 @@ class TCPHandler(socketserver.BaseRequestHandler):
                 TCPHandler.steps.append(move)
                 prev_move = move
             TCPHandler.start_time = time()
-            TCPHandler.correct_key = randint(0, 7)
+            if not cheat:
+                TCPHandler.correct_key = randint(0, 7)
+            else:
+                pass
         print(f"{client_id} joined")
         try:
             while True:
@@ -135,9 +148,13 @@ class TCPHandler(socketserver.BaseRequestHandler):
                 if data["quit"]:
                     TCPHandler.alive = False
                 if data["clicked"]:
-                    if TCPHandler.correct_key == client_id:
+                    if not cheat:
+                        if TCPHandler.correct_key == client_id:
+                            TCPHandler.success = True
+                        TCPHandler.alive = False
+                    else:
                         TCPHandler.success = True
-                    TCPHandler.alive = False
+                        TCPHandler.alive = False
                 current_time = time() - TCPHandler.start_time
                 reply = {
                     "id": client_id,
@@ -160,6 +177,7 @@ class TCPHandler(socketserver.BaseRequestHandler):
             if len(TCPHandler.clients) == 1:
                 TCPHandler.alive = True
                 print("======================")
+                print("The clients have left, you should stop this script (by pressing CTRL+C) to end this window, if gonna be ran again you can leave this open.")
             TCPHandler.clients.remove(client_id)
 
 
