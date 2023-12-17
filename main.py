@@ -9,6 +9,7 @@ from time import sleep
 from json import loads, dumps, load
 from pymsgbox import alert
 
+isthewinning = False
 
 class LimboKeysClient:
     def __init__(self):
@@ -54,6 +55,7 @@ class LimboKeysClient:
 
 WIDTH, HEIGHT, FRAMERATE = 150, 150, 75
 
+
 # configurables (do config.json)
 borderless = False
 transparent = False
@@ -70,6 +72,7 @@ try:
         sfx = data.get("sfx", True)
 except FileNotFoundError:
     pass
+
 
 pygame.init()
 flags = 0
