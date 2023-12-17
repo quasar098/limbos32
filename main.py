@@ -9,8 +9,6 @@ from time import sleep
 from json import loads, dumps, load
 from pymsgbox import alert
 
-isthewinning = False
-
 class LimboKeysClient:
     def __init__(self):
         self.id = -1  # 0-7 assigned by server, -1 if unknown
