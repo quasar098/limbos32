@@ -6,17 +6,21 @@
 
 **DO NOT LEAVE ME YOUTUBE COMMENTS ASKING ME HOW TO INSTALL THIS GAME**
 
-## rudimentary install guide
+## Install guide
 
-1) install python from python.org, preferably python 3.9 or above. if you are installing it then make sure to check the box to install pip when it asks you during the install process. also check the box to set up the `PATH` environment variable or whatever and restart your pc if necessary
-2) make sure python works from the terminal by going into command prompt and typing `python` (if it doesn't work, try `python3`). if it doesn't work no matter what you try, try adding python to environment path (google how to do that)
-3) once you have that working, close the terminal and download the source code in github.com by clicking on the green `<> code` button and clicking "download ZIP"
-4) unzip the file from file explorer or whatever
-5) navigate to the unzipped folder with the source code
-6) open up a new command prompt (type `cmd` in taskbar) and navigate to the directory with the source by using the `cd` and `dir` commands. most likely it will be in `C:\Users\<username>\Downloads` or something. install the dependencies by typing in `python3 -m pip install -r requirements.txt` in the command prompt. if it doesn't work, you may have to try using `python` instead of `python3`. keep that terminal open for now
-7) i think double clicking on the "server.py" should run it. the server.py is always required in the background because it manages the positions and synchronization for all the windows of the limbo key game
-8) in the terminal from before, type something like `python3 "spawn-all.py"`. if it doesn't work, try changing `python3` to `python`. additionally, it might not open any windows, in which case you should change `python3` to `python` in the source code in spawn-all.py
+1) install python from [python.org](https://python.org/downloads) and use the settings from these images:
+![pymainpage](https://github.com/HHonzik/limbos32/assets/87828740/8dfd944f-aa26-49a4-8cbc-1c9b37bae120)
+![pysecondpage](https://github.com/HHonzik/limbos32/assets/87828740/0cc37bdc-94d7-4362-a93e-fb2eb63c7b98)
+![pythirdpage](https://github.com/HHonzik/limbos32/assets/87828740/d866a0b6-3af0-4489-9eac-9fdf19b32b5a)
+2) once you have that installed, download the source code of this repo (project) by clicking on the green `<> code` button and clicking "download ZIP" (if you have git installed git clone it with the url provided down below that)
+5) unzip the .zip (7-zip for extraction is recommended but you can use anything which can extract it)
+6) navigate to the unzipped folder with the source code
+7) open the file start.bat which should finish the rest automaticly
 
-### need tech support?
+### Need tech support?
 
-if you are struggling to install this, make a github issue and someone who knows what they are doing may help you. this may or may not be me (probably not me, i don't have that much free time). if you know what you are doing and want to help others, then please answer people's questions in the github issues and i will try to mark them as resolved.
+
+if you are struggling to install this or have issues running this, make a github issue and someone who knows what they are doing may help you. this may or may not be me (probably not me, i don't have that much free time). if you know what you are doing and want to help others, then please answer people's questions in the github issues and i will try to mark them as resolved.
+
+### Want to help out?
+If you want to help out, the only way is to contribute to the code (like by fixing bugs, making transparrency work better, etc..) which is made in **Py**thon and one **Bat**ch script for starting this.
