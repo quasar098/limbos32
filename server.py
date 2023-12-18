@@ -15,7 +15,19 @@ DO_TIMES = 30
 GAME_START_TIME = 5.4
 STEP_SPEED = 60 / 200
 
-seed(0xF0C_5)  # FOCUS
+# configurables for the server (do config.json)
+cheat = False
+# ==============================
+try:
+    with open("config.json") as f:
+        data: dict[str, Any] = load(f)
+        cheat = data.get("cheat", False)
+        seedfocus = data.get("seedfocus", False)
+except FileNotFoundError:
+    print("config.json not found, using defaults")
+
+if seedfocus:
+    seed(0xF0C_5)  # FOCUS
 
 step_map = {
     0:  {0: 4, 1: 5, 2: 6, 3: 7, 4: 0, 5: 1, 6: 2, 7: 3},  # mirror across x axis
@@ -62,17 +74,6 @@ def get_circle_pos(client_id: int, time_offset: float):
         int(SC_WIDTH / 2 - W_WIDTH / 2)+cos(pi*client_id/4+time_offset/2)*SC_WIDTH*2/8,
         int(SC_HEIGHT / 2 - W_HEIGHT / 2)+sin(pi*client_id/4+time_offset/2)*SC_HEIGHT*2/8
     ]
-
-
-# configurables for the server (do config.json)
-cheat = False
-# ==============================
-try:
-    with open("config.json") as f:
-        data: dict[str, Any] = load(f)
-        cheat = data.get("cheat", False)
-except FileNotFoundError:
-    print("config.json not found, using defaults")
 
 def get_pos(client_id: int, current_time: float, steps: list):
 
