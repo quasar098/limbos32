@@ -4,5 +4,6 @@
   "music": true,
   "sfx": true,
   "cheat": false,
-  "py": "python3"
+  "py": "python3",
+  "seedfocus": false
 }
