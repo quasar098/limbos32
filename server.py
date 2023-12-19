@@ -178,7 +178,6 @@ class TCPHandler(socketserver.BaseRequestHandler):
             if len(TCPHandler.clients) == 1:
                 TCPHandler.alive = True
                 print("======================")
-                print("The clients have left, you should stop this script (by pressing CTRL+C) to end this window, if gonna be ran again you can leave this open.")
             TCPHandler.clients.remove(client_id)
 
 
