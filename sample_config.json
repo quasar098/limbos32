@@ -3,7 +3,6 @@
   "transparent": false,
   "music": true,
   "sfx": true,
-  "cheat": false,
   "py": "python3",
   "seedfocus": false
 }
