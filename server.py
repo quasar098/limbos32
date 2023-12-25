@@ -16,7 +16,7 @@ GAME_START_TIME = 5.4
 STEP_SPEED = 60 / 200
 
 # configurables for the server (do config.json)
-cheat = False
+seedfocus = False
 # ==============================
 try:
     with open("config.json") as f:
@@ -137,10 +137,7 @@ class TCPHandler(socketserver.BaseRequestHandler):
                 TCPHandler.steps.append(move)
                 prev_move = move
             TCPHandler.start_time = time()
-            if not cheat:
-                TCPHandler.correct_key = randint(0, 7)
-            else:
-                pass
+            TCPHandler.correct_key = randint(0, 7)
         print(f"{client_id} joined")
         try:
             while True:
@@ -149,13 +146,9 @@ class TCPHandler(socketserver.BaseRequestHandler):
                 if data["quit"]:
                     TCPHandler.alive = False
                 if data["clicked"]:
-                    if not cheat:
-                        if TCPHandler.correct_key == client_id:
-                            TCPHandler.success = True
-                        TCPHandler.alive = False
-                    else:
+                    if TCPHandler.correct_key == client_id:
                         TCPHandler.success = True
-                        TCPHandler.alive = False
+                    TCPHandler.alive = False
                 current_time = time() - TCPHandler.start_time
                 reply = {
                     "id": client_id,
