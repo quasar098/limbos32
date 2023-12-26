@@ -8,7 +8,7 @@ counted = 0
 
 def threadeded():
     global counted
-    system("python3 main.py")
+    system("python main.py")
     counted -= 1
 
 
