@@ -5,7 +5,7 @@ from time import sleep
 
 w1 = which("python")
 w2 = which("python3")
-cmd = "python" if (w2==None or (w1!=None and ("WindowsApps" in w2))) else "python3"
+cmd = "python" if (w2 is None or (w1 is not None and ("WindowsApps" in w2))) else "python3"
 
 counted = 0
 
