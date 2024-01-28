@@ -5,7 +5,7 @@ from time import sleep
 
 w1 = which("python")
 w2 = which("python3")
-if (w2 is None) or (w1 is not None and (("WindowsApps" in w2) or ("mingw64" in w2))):
+if (w2 is None) or (w1 and (("WindowsApps" in w2) or ("mingw64" in w2))):
     cmd = "python"
 else:
     cmd = "python3"
