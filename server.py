@@ -150,7 +150,7 @@ class TCPHandler(socketserver.BaseRequestHandler):
                 }
                 reply = dumps(reply).encode('ascii')
                 self.request.sendall(reply)
-        except WindowsError:
+        except OSError:
             pass
         finally:
             while TCPHandler.print_blocking:
