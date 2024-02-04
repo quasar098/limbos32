@@ -5,9 +5,10 @@ from time import time, sleep
 from math import cos, sin, pi
 from random import choice, seed
 from random import randint
-from win32api import GetSystemMetrics
+import tkinter as tk
 
-SC_WIDTH, SC_HEIGHT = GetSystemMetrics(0), GetSystemMetrics(1)
+root = tk.Tk()
+SC_WIDTH, SC_HEIGHT = root.winfo_screenwidth(), root.winfo_screenheight()
 W_WIDTH, W_HEIGHT = 150, 150
 SPACING = 100
 DO_TIMES = 30

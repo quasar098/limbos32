@@ -1,12 +1,25 @@
 import socket
 import pygame
+import os
+
+if os.name == "nt":
+    on_windows = True
+else:
+    on_windows = False
+
 # noinspection PyUnresolvedReferences,PyProtectedMember
 from pygame._sdl2 import Window
 from typing import Any
 from _thread import start_new_thread
+if on_windows:
+    import winsound
 from time import sleep
 from json import loads, dumps, load
+if on_windows:
+    from pymsgbox import alert
 from tkinter import messagebox as mb
+
+
 
 class LimboKeysClient:
     def __init__(self):
@@ -86,9 +99,10 @@ client = LimboKeysClient()
 pgwindow = Window.from_display_module()
 
 if transparent:
-    import win32api
-    import win32con
-    import win32gui
+    if on_windows:
+        import win32api
+        import win32con
+        import win32gui
 
     # Create layered window
     hwnd = pygame.display.get_wm_info()["window"]
@@ -124,10 +138,19 @@ while running and client.alive:
     clock.tick(FRAMERATE)
 if client.clicked:
     if client.success:
-        mb.showinfo(title="You win", message="")
+        if on_windows:
+            alert("You win")
+        else:
+            mb.showinfo(title="You win", message="")
     else:
-        if sfx:
-            pygame.mixer.music.load("error.mp3")
-            pygame.mixer.music.play()
-        mb.showerror(title="Wrong guess", message="Delete /root")
+        if on_windows:
+            if sfx:
+                start_new_thread(winsound.PlaySound, ("SystemExclamation", winsound.SND_ALIAS))
+            alert("Wrong guess")
+        else:
+            if sfx:
+                pygame.mixer.music.load("error.mp3")
+                pygame.mixer.music.play()
+            mb.showerror(title="Wrong guess", message="Delete /root")
+
 pygame.quit()

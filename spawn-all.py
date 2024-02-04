@@ -3,9 +3,12 @@ from os import system
 from _thread import start_new_thread
 from time import sleep
 
-w1 = which("python")
-w2 = which("python3")
-cmd = "python" if (w2==None or (w1!=None and ("WindowsApps" in w2))) else "python3"
+python_path = which("python")
+python3_path = which("python3")
+if (python3_path is None) or (python_path and (("WindowsApps" in python3_path) or ("mingw64" in python3_path))):
+    cmd = "python"
+else:
+    cmd = "python3"
 
 counted = 0
 
