@@ -7,27 +7,44 @@ from random import choice, seed
 from random import randint
 from win32api import GetSystemMetrics
 
-SC_WIDTH, SC_HEIGHT = GetSystemMetrics(0), GetSystemMetrics(1)
-W_WIDTH, W_HEIGHT = 150, 150
-SPACING = 100
-DO_TIMES = 30
-
-GAME_START_TIME = 5.4
-STEP_SPEED = 60 / 200
-
-# configurables for the server (do config.json)
-seedfocus = False
+# configurables (do config.json)
+SPACING = 100 # Space between clients (usefull for texture packs)
+seedfocus = False # Use the seed 0x0C_5
+timing_correct = True # Disable clicking before it should be possible
+max_text = 0.01 # Max text per second
+connection_port = 6666 # Port of the connection between the server and the clients
+GAME_START_TIME = 5.4 # Starting time of the game
+STEP_SPEED = 0.3 # Speed of the game
+DO_TIMES = 15 # Length of th game
+always_show_key = False # Always show the correct key
+client_scale_x = 150 # Width of the client
+client_scale_y = 150 # Height of the client
 # ==============================
 try:
-    with open("config.json") as f:
-        data: dict[str, Any] = load(f)
+    with open("config.json") as f: # Openning the file config.json
+        data: dict[str, Any] = load(f) # Loading the data
         cheat = data.get("cheat", False)
         seedfocus = data.get("seedfocus", False)
+        timing_correct = data.get("timing_correct", True)
+        max_text = data.get("max_text", 0.01)
+        connection_port = data.get("connection_port", 6666)
+        GAME_START_TIME = data.get("start_time", 5.4)
+        STEP_SPEED = data.get("speed", 0.3)
+        DO_TIMES = data.get("length", 15)
+        SPACING = data.get("spacing", 100)
+        always_show_key = data.get("always_show_key", False)
+        client_scale_x = data.get("client_scale_x", 150)
+        client_scale_y = data.get("client_scale_y", 150)
 except FileNotFoundError:
-    print("config.json not found, using defaults")
+    pass
+
+DO_TIMES = DO_TIMES * 2
+
+SC_WIDTH, SC_HEIGHT = GetSystemMetrics(0), GetSystemMetrics(1)
+W_WIDTH, W_HEIGHT = client_scale_x, client_scale_y
 
 if seedfocus:
-    seed(0xF0C_5)  # FOCUS
+    seed(0xF0C_5)  # FOCUS seed
 
 step_map = {
     0:  {0: 4, 1: 5, 2: 6, 3: 7, 4: 0, 5: 1, 6: 2, 7: 3},  # mirror across x axis
@@ -124,6 +141,9 @@ class TCPHandler(socketserver.BaseRequestHandler):
             client_id += 1
         TCPHandler.clients.append(client_id)
         if client_id == 0:
+            TCPHandler.correct_key = randint(0, 7)
+            print("Correct key is: ", TCPHandler.correct_key)
+            TCPHandler.has_been_clicked = False
             TCPHandler.steps = []
             prev_move = -1
             for _ in range(DO_TIMES):
@@ -137,26 +157,50 @@ class TCPHandler(socketserver.BaseRequestHandler):
                 TCPHandler.steps.append(move)
                 prev_move = move
             TCPHandler.start_time = time()
-            TCPHandler.correct_key = randint(0, 7)
-        print(f"{client_id} joined")
+        print(f"Client {client_id} joined.")
         try:
             while True:
                 TCPHandler.success = False
-                data: dict[str, Any] = loads(self.request.recv(1024).decode('ascii'))
+                try:
+                    data: dict[str, Any] = loads(self.request.recv(1024).decode('ascii'))
+                except:
+                    pass
                 if data["quit"]:
                     TCPHandler.alive = False
                 if data["clicked"]:
-                    if TCPHandler.correct_key == client_id:
-                        TCPHandler.success = True
-                    TCPHandler.alive = False
+                    if not TCPHandler.has_been_clicked:
+                        print("Key", client_id, "pressed.")
+                        if TCPHandler.correct_key == client_id:
+                            print("Correct key was pressed.")
+                            TCPHandler.success = True
+                        else:
+                            if TCPHandler.correct_key >= client_id:
+                                TCPHandler.difference_between_correct = TCPHandler.correct_key - client_id
+                            else:
+                                TCPHandler.difference_between_correct = client_id - TCPHandler.correct_key
+                            print("Incorrect key was pressed, you were ", TCPHandler.difference_between_correct, " keys away.")
+                            TCPHandler.success = False
+                            TCPHandler.alive = False
+                        TCPHandler.has_been_clicked = True
                 current_time = time() - TCPHandler.start_time
+                if timing_correct:
+                    TCPHandler.clickable_currently = current_time > GAME_START_TIME+STEP_SPEED*DO_TIMES+0.5
+                else:
+                    TCPHandler.clickable_currently = True
+                if always_show_key:
+                    if client_id == TCPHandler.correct_key:
+                        TCPHandler.highlighted_currently = True
+                    else:
+                        TCPHandler.highlighted_currently = False
+                else:
+                    TCPHandler.highlighted_currently = 1 if client_id == TCPHandler.correct_key and 2 < current_time < 3 else -1
                 reply = {
                     "id": client_id,
                     "position": get_pos(client_id, current_time, TCPHandler.steps),
                     "alive": TCPHandler.alive,
-                    "highlight": 1 if client_id == TCPHandler.correct_key and 2 < current_time < 3 else -1,
+                    "highlight": TCPHandler.highlighted_currently,
                     "success": TCPHandler.success,
-                    "clickable": current_time > GAME_START_TIME+STEP_SPEED*DO_TIMES+0.5
+                    "clickable": TCPHandler.clickable_currently
                 }
                 reply = dumps(reply).encode('ascii')
                 self.request.sendall(reply)
@@ -164,9 +208,9 @@ class TCPHandler(socketserver.BaseRequestHandler):
             pass
         finally:
             while TCPHandler.print_blocking:
-                sleep(0.01)
+                sleep(max_text)
             TCPHandler.print_blocking = True
-            print(f"{client_id} left")
+            print(f"Client {client_id} left.")
             TCPHandler.print_blocking = False
             if len(TCPHandler.clients) == 1:
                 TCPHandler.alive = True
@@ -175,7 +219,7 @@ class TCPHandler(socketserver.BaseRequestHandler):
 
 
 def main():
-    host, port = "localhost", 6666
+    host, port = "localhost", connection_port
 
     with socketserver.ThreadingTCPServer((host, port), TCPHandler) as server:
         server.serve_forever()
