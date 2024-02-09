@@ -3,15 +3,13 @@ from os import system
 from _thread import start_new_thread
 from time import sleep
 
-w1 = which("python")
-w2 = which("python3")
-if (w2 is None) or (w1 and (("WindowsApps" in w2) or ("mingw64" in w2))):
 python_path = which("python")
 python3_path = which("python3")
 if (python3_path is None) or (python_path and (("WindowsApps" in python3_path) or ("mingw64" in python3_path))):
     cmd = "python"
 else:
     cmd = "python3"
+
 counted = 0
 def threadeded():
     global counted
