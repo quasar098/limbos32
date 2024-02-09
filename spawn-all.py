@@ -12,10 +12,7 @@ else:
 
 counted = 0
 
-
 def threadeded():
     global counted
-    system("python3 main.py")
     system(cmd+" main.py")
     counted -= 1
-
