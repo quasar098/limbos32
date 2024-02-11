@@ -11,18 +11,13 @@ else:
     cmd = "python3"
 
 counted = 0
-
-
 def threadeded():
     global counted
     system(cmd+" main.py")
     counted -= 1
-
-
 for _ in range(8):
     counted += 1
     start_new_thread(threadeded, ())
     sleep(0.23)
-
 while counted:
     sleep(0.1)

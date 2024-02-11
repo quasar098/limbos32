@@ -1,0 +1,8 @@
+{
+  "borderless": false,
+  "transparent": false,
+  "music": true,
+  "sfx": true,
+  "py": "python3",
+  "seedfocus": false
+}
