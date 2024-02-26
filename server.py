@@ -21,7 +21,7 @@ DO_TIMES = 30
 GAME_START_TIME = 5.4
 STEP_SPEED = 60 / 200
 
-seed(0xF0C_5 + int.from_bytes(urandom(2), byteorder='big'))  # FOCUS
+seed(0xF0C_5 + int.from_bytes(os.urandom(2), byteorder='big'))  # FOCUS
 
 step_map = {
     0:  {0: 4, 1: 5, 2: 6, 3: 7, 4: 0, 5: 1, 6: 2, 7: 3},  # mirror across x axis
