@@ -20,7 +20,6 @@ if on_windows:
 from tkinter import messagebox as mb
 
 
-
 class LimboKeysClient:
     def __init__(self):
         self.id = -1  # 0-7 assigned by server, -1 if unknown
@@ -141,7 +140,7 @@ if client.clicked:
         if on_windows:
             alert("You win")
         else:
-            mb.showinfo(title="You win", message="")
+            mb.showinfo(title="", message="You win")
     else:
         if on_windows:
             if sfx:
@@ -151,6 +150,6 @@ if client.clicked:
             if sfx:
                 pygame.mixer.music.load("error.mp3")
                 pygame.mixer.music.play()
-            mb.showerror(title="Wrong guess", message="Delete /root")
+            mb.showerror(title="", message="Wrong guess")
 
 pygame.quit()
