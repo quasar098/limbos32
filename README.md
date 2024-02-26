@@ -2,6 +2,8 @@
 
 ![new4](https://github.com/quasar098/limbos32/assets/70716985/36bfe28d-9616-4ee0-bc10-96d762f61105)
 
+**NOTE: CURRENTLY ONLY WORKING ON WINDOWS 10/11**
+
 **DO NOT LEAVE ME YOUTUBE COMMENTS ASKING ME HOW TO INSTALL THIS GAME**
 
 ## rudimentary install guide
