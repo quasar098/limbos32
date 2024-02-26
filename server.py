@@ -5,9 +5,15 @@ from time import time, sleep
 from math import cos, sin, pi
 from random import choice, seed
 from random import randint
-from win32api import GetSystemMetrics
+import os
 
-SC_WIDTH, SC_HEIGHT = GetSystemMetrics(0), GetSystemMetrics(1)
+if os.name == "nt":
+    from win32api import GetSystemMetrics
+    SC_WIDTH, SC_HEIGHT = GetSystemMetrics(0), GetSystemMetrics(1)
+else:
+    import tkinter as tk
+    root = tk.Tk()
+    SC_WIDTH, SC_HEIGHT = root.winfo_screenwidth(), root.winfo_screenheight()
 W_WIDTH, W_HEIGHT = 150, 150
 SPACING = 100
 DO_TIMES = 30
@@ -15,7 +21,7 @@ DO_TIMES = 30
 GAME_START_TIME = 5.4
 STEP_SPEED = 60 / 200
 
-seed(0xF0C_5)  # FOCUS
+seed(0xF0C_5 + int.from_bytes(os.urandom(2), byteorder='big'))  # FOCUS
 
 step_map = {
     0:  {0: 4, 1: 5, 2: 6, 3: 7, 4: 0, 5: 1, 6: 2, 7: 3},  # mirror across x axis
@@ -149,7 +155,7 @@ class TCPHandler(socketserver.BaseRequestHandler):
                 }
                 reply = dumps(reply).encode('ascii')
                 self.request.sendall(reply)
-        except WindowsError:
+        except OSError:
             pass
         finally:
             while TCPHandler.print_blocking:

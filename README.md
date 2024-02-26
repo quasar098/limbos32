@@ -14,8 +14,7 @@
 4) unzip the file from file explorer or whatever
 5) navigate to the unzipped folder with the source code
 6) open up a new command prompt (type `cmd` in taskbar) and navigate to the directory with the source by using the `cd` and `dir` commands. most likely it will be in `C:\Users\<username>\Downloads` or something. install the dependencies by typing in `python3 -m pip install -r requirements.txt` in the command prompt. if it doesn't work, you may have to try using `python` instead of `python3`. keep that terminal open for now
-7) i think double clicking on the "server.py" should run it. the server.py is always required in the background because it manages the positions and synchronization for all the windows of the limbo key game
-8) in the terminal from before, type something like `python3 "spawn-all.py"`. if it doesn't work, try changing `python3` to `python`. additionally, it might not open any windows, in which case you should change `python3` to `python` in the source code in spawn-all.py
+7) in the terminal from before, type something like `python3 "main.py"`. if it doesn't work, try changing `python3` to `python`. additionally, it might not open any windows, in which case you should change `python3` to `python` in the source code in main.py
 
 ### need tech support?
 
