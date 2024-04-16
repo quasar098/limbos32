@@ -23,6 +23,7 @@ from tkinter import messagebox as mb
 class LimboKeysClient:
     def __init__(self):
         self.id = -1  # 0-7 assigned by server, -1 if unknown
+        self.unique_keys = [pygame.image.load("key{}.png".format(i)).convert_alpha() for i in range(8)]
         self.position = [0, -300]
         self.id_surface = pygame.Surface((0, 0))
         self.wants_to_quit = False
@@ -31,6 +32,7 @@ class LimboKeysClient:
         self.clicked = False
         self.clickable = False
         self.success = False
+        self.movement_finished = False
         start_new_thread(self.listening_thread, ())
 
     def listening_thread(self):
@@ -47,6 +49,7 @@ class LimboKeysClient:
                     self.alive = msg["alive"]
                     self.success = msg["success"]
                     self.clickable = msg["clickable"]
+                    self.movement_finished = msg["movement_finished"]
                     self.highlight_amount = min(1, max(self.highlight_amount + msg["highlight"] * 4 / FRAMERATE, 0))
                     if not assigned_client_id:
                         if self.id == 0:
@@ -128,8 +131,10 @@ while running and client.alive:
         key.set_alpha(255 - int(client.highlight_amount * 255))
         screen.blit(key, key.get_rect(center=(WIDTH / 2, HEIGHT / 2)))
     else:
-        screen.blit(key, key.get_rect(center=(WIDTH / 2, HEIGHT / 2)))
-    # screen.blit(client.id_surface, (10, 10))
+        if client.movement_finished:
+            screen.blit(client.unique_keys[client.id], client.unique_keys[client.id].get_rect(center=(WIDTH / 2, HEIGHT / 2)))
+        else:
+            screen.blit(key, key.get_rect(center=(WIDTH / 2, HEIGHT / 2)))
 
     pgwindow.position = [int(pos) for pos in client.position]
 
