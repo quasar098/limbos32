@@ -68,6 +68,7 @@ class LimboKeysClient:
 WIDTH, HEIGHT, FRAMERATE = 150, 150, 75
 
 # configurables (do config.json)
+colored = False
 borderless = False
 transparent = False
 music = True
@@ -77,6 +78,7 @@ sfx = True
 try:
     with open("config.json") as f:
         data: dict[str, Any] = load(f)
+        colored = data.get("colored", False)
         borderless = data.get("borderless", False)
         transparent = data.get("transparent", False)
         music = data.get("music", True)
@@ -131,7 +133,7 @@ while running and client.alive:
         key.set_alpha(255 - int(client.highlight_amount * 255))
         screen.blit(key, key.get_rect(center=(WIDTH / 2, HEIGHT / 2)))
     else:
-        if client.movement_finished:
+        if client.movement_finished & colored:
             screen.blit(client.unique_keys[client.id], client.unique_keys[client.id].get_rect(center=(WIDTH / 2, HEIGHT / 2)))
         else:
             screen.blit(key, key.get_rect(center=(WIDTH / 2, HEIGHT / 2)))

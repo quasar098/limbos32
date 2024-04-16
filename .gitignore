@@ -3,4 +3,3 @@
 *.xml
 *.iml
 config.json
-__pycache__/server.cpython-310.pyc
