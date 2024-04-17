@@ -151,7 +151,8 @@ class TCPHandler(socketserver.BaseRequestHandler):
                     "alive": TCPHandler.alive,
                     "highlight": 1 if client_id == TCPHandler.correct_key and 2 < current_time < 3 else -1,
                     "success": TCPHandler.success,
-                    "clickable": current_time > GAME_START_TIME+STEP_SPEED*DO_TIMES+0.5
+                    "clickable": current_time > GAME_START_TIME+STEP_SPEED*DO_TIMES+0.5,
+                    "movement_finished": current_time > GAME_START_TIME+STEP_SPEED*DO_TIMES,
                 }
                 reply = dumps(reply).encode('ascii')
                 self.request.sendall(reply)
