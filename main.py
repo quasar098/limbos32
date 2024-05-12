@@ -14,9 +14,10 @@ else:
 counted = 0
 start_new_thread(main, ())
 
+
 def threadeded():
     global counted
-    system(cmd+" key.py")
+    system(cmd + " key.py")
     counted -= 1
 
 

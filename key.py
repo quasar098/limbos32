@@ -1,5 +1,6 @@
 import socket
 import pygame
+from random import randint
 import os
 
 if os.name == "nt":
@@ -102,18 +103,20 @@ pygame.display.set_caption("LIMBO")
 client = LimboKeysClient()
 pgwindow = Window.from_display_module()
 
-if transparent:
-    if on_windows:
-        import win32api
-        import win32con
-        import win32gui
+if on_windows:
+    import win32api
+    import win32com.client
+    import win32con
+    import win32gui
+    if transparent:
 
-    # Create layered window
-    hwnd = pygame.display.get_wm_info()["window"]
-    win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE,
-                           win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE) | win32con.WS_EX_LAYERED)
-    # Set window transparency color
-    win32gui.SetLayeredWindowAttributes(hwnd, win32api.RGB(*(1, 1, 1)), 0, win32con.LWA_COLORKEY)
+        # Create layered window
+        hwnd = pygame.display.get_wm_info()["window"]
+        win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE,
+                               win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE) | win32con.WS_EX_LAYERED)
+        # Set window transparency color
+        win32gui.SetLayeredWindowAttributes(hwnd, win32api.RGB(*(1, 1, 1)), 0, win32con.LWA_COLORKEY)
+
 
 running = True
 while running and client.alive:
@@ -140,8 +143,19 @@ while running and client.alive:
 
     pgwindow.position = [int(pos) for pos in client.position]
 
+    if on_windows and not client.movement_finished:
+        try:
+            if randint(1, 140) == 4:
+                shell = win32com.client.Dispatch("WScript.Shell")
+                shell.SendKeys('%')
+                win32gui.SetForegroundWindow(pygame.display.get_wm_info()["window"])
+        except Exception:
+            pass
+
     pygame.display.flip()
     clock.tick(FRAMERATE)
+
+# after clicked
 if client.clicked:
     if client.success:
         if on_windows:
