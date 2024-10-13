@@ -5,21 +5,41 @@ from time import time, sleep
 from math import cos, sin, pi
 from random import choice, seed
 from random import randint
+from json import loads, dumps, load
 import os
 
-if os.name == "nt":
-    from win32api import GetSystemMetrics
-    SC_WIDTH, SC_HEIGHT = GetSystemMetrics(0), GetSystemMetrics(1)
-else:
-    import tkinter as tk
-    root = tk.Tk()
-    SC_WIDTH, SC_HEIGHT = root.winfo_screenwidth(), root.winfo_screenheight()
+# configurables (do config.json)
+SC_WIDTH, SC_HEIGHT = -1, -1 # Detect Screen size
+SPACING = 100 # Spacing (logic)
+tcp_printblocking_lenght = 0.6 / 60 # Default
+# ==============================
+
+try:
+    with open("config.json") as f:
+        data: dict[str, Any] = load(f)
+        SC_WIDTH = data.get("screen_width", -1) # -1 detects the screen size
+        SC_HEIGHT = data.get("screen_height", -1) # -1 detects the screen size
+        SPACING = data.get("spacing", 100)
+        tcp_printblocking_lenght = 0.6 / data.get("tickrate", 60) # Print blocking lenght set as a tickrate
+except FileNotFoundError:
+    pass
+except ZeroDivisionError:
+    tcp_printblocking_lenght = 0
+    STEP_SPEED = 0.3
+
+if SC_WIDTH == -1 and SC_HEIGHT == -1:
+    if os.name == "nt":
+        from win32api import GetSystemMetrics
+        SC_WIDTH, SC_HEIGHT = GetSystemMetrics(0), GetSystemMetrics(1)
+    else:
+        import tkinter as tk
+        root = tk.Tk()
+        SC_WIDTH, SC_HEIGHT = root.winfo_screenwidth(), root.winfo_screenheight()
 W_WIDTH, W_HEIGHT = 150, 150
-SPACING = 100
 DO_TIMES = 30
 
 GAME_START_TIME = 5.4
-STEP_SPEED = 60 / 200
+STEP_SPEED = tcp_printblocking_lenght * 30 # tcp_printblocking_lenght to STEP_SPEED
 
 seed(0xF0C_5 + int.from_bytes(os.urandom(2), byteorder='big'))  # FOCUS
 
@@ -160,7 +180,7 @@ class TCPHandler(socketserver.BaseRequestHandler):
             pass
         finally:
             while TCPHandler.print_blocking:
-                sleep(0.01)
+                sleep(tcp_printblocking_lenght)
             TCPHandler.print_blocking = True
             print(f"{client_id} left")
             TCPHandler.print_blocking = False
