@@ -12,6 +12,7 @@ import os
 SC_WIDTH, SC_HEIGHT = -1, -1 # Detect Screen size
 SPACING = 100 # Spacing (logic)
 tcp_printblocking_lenght = 0.6 / 60 # Default
+tickrate = 60
 # ==============================
 
 try:
@@ -20,13 +21,13 @@ try:
         SC_WIDTH = data.get("screen_width", -1) # -1 detects the screen size
         SC_HEIGHT = data.get("screen_height", -1) # -1 detects the screen size
         SPACING = data.get("spacing", 100)
-        tcp_printblocking_lenght = 0.6 / data.get("tickrate", 60) # Print blocking lenght set as a tickrate
+        tickrate = data.get("tickrate", 60)
 except FileNotFoundError:
     pass
 except ZeroDivisionError:
     tcp_printblocking_lenght = 0
     STEP_SPEED = 0.3
-
+tcp_printblocking_lenght = 0.6 / tickrate
 if SC_WIDTH == -1 and SC_HEIGHT == -1:
     if os.name == "nt":
         from win32api import GetSystemMetrics
@@ -39,12 +40,13 @@ if SC_WIDTH == -1 and SC_HEIGHT == -1:
         screen = pygame.display.set_mode((640,480), FULLSCREEN)
         SC_WIDTH, SC_HEIGHT = screen.get_size()
         pygame.quit()
-        del(screen,pygame)
+        del(screen)
+print("Screen size:" + str(SC_WIDTH) + "X" + str(SC_HEIGHT))
 W_WIDTH, W_HEIGHT = 150, 150
 DO_TIMES = 30
 
 GAME_START_TIME = 5.4
-STEP_SPEED = tcp_printblocking_lenght * 30 # tcp_printblocking_lenght to STEP_SPEED
+STEP_SPEED = tcp_printblocking_lenght * 30 * (tickrate/60) # tcp_printblocking_lenght to STEP_SPEED
 
 seed(0xF0C_5 + int.from_bytes(os.urandom(2), byteorder='big'))  # FOCUS
 
