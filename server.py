@@ -32,9 +32,14 @@ if SC_WIDTH == -1 and SC_HEIGHT == -1:
         from win32api import GetSystemMetrics
         SC_WIDTH, SC_HEIGHT = GetSystemMetrics(0), GetSystemMetrics(1)
     else:
-        import tkinter as tk
-        root = tk.Tk()
-        SC_WIDTH, SC_HEIGHT = root.winfo_screenwidth(), root.winfo_screenheight()
+        import pygame
+        from pygame.locals import *
+
+        pygame.init()
+        screen = pygame.display.set_mode((640,480), FULLSCREEN)
+        SC_WIDTH, SC_HEIGHT = screen.get_size()
+        pygame.quit()
+        del(screen,pygame)
 W_WIDTH, W_HEIGHT = 150, 150
 DO_TIMES = 30
 
